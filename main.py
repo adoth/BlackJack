@@ -1,10 +1,11 @@
 from random import shuffle
+from time import sleep
 
 
 SUIT = {
-    1: 'ハート',
-    2: 'スペード',
-    3: 'ダイヤ',
+    1: '　ハート　',
+    2: 'スペード　',
+    3: '　ダイヤ　',
     4: 'クローバー'
 }
 
@@ -53,10 +54,8 @@ class Participant:
         self.rank.append(min(num_rank, 10))
         self.draw_card_history.append(card)
 
-    def over_twenty_one(self):
-        if sum(self.rank) > 21:
-            return True
-        return False
+    def is_busted(self):
+        return sum(self.rank) > 21
 
     def display_suit_rank(self, n):
         card = self.draw_card_history[n-1]
@@ -65,51 +64,74 @@ class Participant:
 
 
 class Player(Participant):
+    def is_double_down(self):
+        print('{} のスコアは {}'.format(self.name, sum(self.rank)))
+        return input('Double Down?\nyes or no\n>').lower() in ['yes', 'y', 'doubledown', 'double down']
+
     def is_continue(self):
         print('{} のスコアは {}'.format(self.name, sum(self.rank)))
-        if input('引く場合は y, やめる場合は n\n>') == 'y':
-            return True
-        return False
+        while True:
+            input_word = input('HIT or STAND\n>').lower()
+            if input_word == 'hit' or input_word == 'stand':
+                return input_word
 
 
 class Dealer(Participant):
     def is_continue(self):
         print('{} のスコアは {}'.format(self.name, sum(self.rank)))
-        if self.get_sum() < 17:
-            return True
-        return False
+        return self.get_sum() < 17
 
 
-def main():
+def game_result(player1, playe2):
+    print('{} のスコアは {}'.format(player1.name, player1.get_sum()))
+    print('{} のスコアは {}'.format(player2.name, player2.get_sum()))
+
+    if player1.is_busted():
+        print('あなたの負けです')
+    elif player2.is_busted():
+        print('あなたの勝ちです')
+    elif player1.get_sum() > player2.get_sum():
+        print('あなたの勝ちです')
+    elif player2.get_sum() > player1.get_sum():
+        print('あなたの負けです')
+    elif player1.get_sum() == player2.get_sum():
+        print('引き分け')
+
+
+def play():
+
     deck = Deck()
     player = Player('player')
     dealer = Dealer('dealer')
-
+    division = 1
     player.set_hand(deck.draw_card())
     player.set_hand(deck.draw_card())
-    dealer.set_hand(deck.draw_card())
-    dealer.set_hand(deck.draw_card(), display=False)
+    print('-' * 100)
+    dealer.set_hand(deck.draw_card())  # UP CARD
+    dealer.set_hand(deck.draw_card(), display=False)  # HOLE CARD
+    print('-' * 100 + '\n')
 
-    print()
-
-    while player.is_continue():
+    if player.is_double_down():
         player.set_hand(deck.draw_card())
-        if player.over_twenty_one():
-            print('21 を越えました')
-            print('あなたの負けです')
-            break
+        division = 1.5
+    else:
+        while player.is_continue():
+            player.set_hand(deck.draw_card())
+            if player.is_busted():
+                break
 
     print()
 
-    if not player.over_twenty_one():
-        dealer.display_suit_rank(2)
-        while dealer.is_continue():
-            dealer.set_hand(deck.draw_card())
+    dealer.display_suit_rank(2)
+    while dealer.is_continue():
+        sleep(3)
+        dealer.set_hand(deck.draw_card())
+    print('\n' + '-' * 100)
+    game_result(player, dealer)
 
-        if dealer.over_twenty_one() or player.get_sum() >= dealer.get_sum():
-            print('あなたの勝ちです')
-        else:
-            print('あなたの負けです')
+
+def main():
+    play()
 
 
 if __name__ == '__main__':
