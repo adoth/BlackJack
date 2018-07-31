@@ -74,7 +74,13 @@ class Participant:
         display_rank = RANKS.get(rank, str(rank))
         return display_suit, display_rank
 
-    def set_hand(self, card):
+    def set_hand(self, card, *, display=True):
+        display_suit, display_rank = self.get_display_suit_rank(card)
+        if display:
+            print('{} の引いたカードは {} の {} です'.format(self.name, display_suit, display_rank))
+        else:
+            print('{} の引いたカードはわかりません'.format(self.name))
+
         num_suit, num_rank = self.get_num_suit_rank(card)
         if num_rank == 1:
             self.rank.append((1, 11))
@@ -83,13 +89,6 @@ class Participant:
         self.draw_card_history.append(card)
         self.count_cards += 1
 
-    def display_draw_card(self, n, *, display=True):
-        display_suit, display_rank = self.get_display_suit_rank(self.draw_card_history[n - 1])
-        if display:
-            print('{} の引いたカードは {} の {} です'.format(self.name, display_suit, display_rank))
-        else:
-            print('{} の引いたカードはわかりません'.format(self.name))
-
     def display_score(self):
         print('{} のスコアは {}'.format(self.name, self.get_sum()))
 
@@ -97,10 +96,12 @@ class Participant:
 class Player(Participant):
     def __init__(self, name):
         super().__init__(name)
-        self.split = False
+        self.done_split = False
         self.double_down = False
 
     def can_split(self):
+        if self.done_split:
+            return False
         _, first_card_rank = self.get_num_suit_rank(self.draw_card_history[0])
         _, second_card_rank = self.get_num_suit_rank(self.draw_card_history[1])
         return first_card_rank == second_card_rank and len(self.draw_card_history) == 2

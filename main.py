@@ -2,6 +2,24 @@ from blackjack import Deck, Player, Dealer
 from time import sleep
 
 
+def split_func(player, deck):
+    global player_left_hand, player_right_hand
+    player_left_hand = Player('player left')
+    player_right_hand = Player('player right')
+
+    print('\n---left')
+    player_left_hand.set_hand(player.draw_card_history[0])
+    player_left_hand.set_hand(deck.draw_card())
+    player_left_hand.done_split = True
+    player_turn(player_left_hand, deck)
+
+    print('\n--right')
+    player_right_hand.set_hand(player.draw_card_history[1])
+    player_right_hand.set_hand(deck.draw_card())
+    player_right_hand.done_split = True
+    player_turn(player_right_hand, deck)
+
+
 def player_turn(player, deck):
     while True:
         player.display_score()
@@ -11,14 +29,14 @@ def player_turn(player, deck):
             break
         elif player_intention in ['double down', 'doubledown', 'double']:
             player.set_hand(deck.draw_card())
-            player.display_draw_card(player.count_cards)
             player.double_down = True
             player.display_score()
             break
         elif player_intention == 'hit':
             player.set_hand(deck.draw_card())
-            player.display_draw_card(player.count_cards)
         elif player_intention == 'split':
+            player.done_split = True
+            split_func(player, deck)
             break
         if player.is_busted():
             player.display_score()
@@ -31,7 +49,6 @@ def dealer_turn(dealer, deck):
     while dealer.is_continue():
         dealer.display_score()
         dealer.set_hand(deck.draw_card())
-        dealer.display_draw_card(dealer.count_cards)
     dealer.display_score()
 
 
@@ -76,13 +93,9 @@ def play():
     print('-' * 100)
     player.set_hand(deck.draw_card())
     player.set_hand(deck.draw_card())
-    player.display_draw_card(1)
-    player.display_draw_card(2)
     print('-' * 100)
     dealer.set_hand(deck.draw_card())  # UP CARD
-    dealer.set_hand(deck.draw_card())  # HOLE CARD
-    dealer.display_draw_card(1)
-    dealer.display_draw_card(2, display=False)
+    dealer.set_hand(deck.draw_card(), display=False)  # HOLE CARD
     print('-' * 100 + '\n')
 
     player_turn(player, deck)
@@ -94,8 +107,14 @@ def play():
     print('\n' + '-' * 100)
     sleep(2)
 
-    division = get_division_and_print_result(player, dealer)
-    
+    if player.done_split:
+        division = get_division_and_print_result(player_left_hand, dealer)
+        print('-' * 100)
+        print()
+        division = get_division_and_print_result(player_right_hand, dealer)
+    else:
+        division = get_division_and_print_result(player, dealer)
+
 
 def main():
     play()
