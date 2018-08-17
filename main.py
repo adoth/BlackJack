@@ -3,10 +3,10 @@ from time import sleep
 
 
 def split_func(player, deck):
-    # TODO: split時の credit
+    # TODO: split時の balance
     global player_left_hand, player_right_hand
-    player_left_hand = Player('player left', player.credit, player.bet)
-    player_right_hand = Player('player right', player.credit, player.bet)
+    player_left_hand = Player('player left', player.balance, player.bet)
+    player_right_hand = Player('player right', player.balance, player.bet)
 
     print('\n---left')
     player_left_hand.set_hand(player.hand[0])
@@ -23,13 +23,16 @@ def split_func(player, deck):
 
 def player_turn(player, deck):
     while True:
+        print("rank")
+        print(player.rank)
+        print(player.hand)
         player.display_score()
         player_intention = player.get_player_intention()
 
         if player_intention == 'hit':
             player.set_hand(deck.draw_card())
         elif player_intention in ['double down', 'doubledown', 'double']:
-            player.credit -= player.bet
+            player.balance -= player.bet
             player.bet *= 2
             player.set_hand(deck.draw_card())
             player.display_score()
@@ -110,19 +113,19 @@ def play():
     if player.done_split:
         division = get_division_and_print_result(player_left_hand, dealer)
 
-        player.credit += player.bet * division
+        player.balance += player.bet * division
         print('you get {}'.format(player.bet * division))
         print('-' * 100)
         print()
         division = get_division_and_print_result(player_right_hand, dealer)
-        player.credit += player.bet * division
+        player.balance += player.bet * division
         print('you get {}'.format(player.bet * division))
     else:
         division = get_division_and_print_result(player, dealer)
-        player.credit += player.bet * division
+        player.balance += player.bet * division
         print('you get {}'.format(player.bet * division))
 
-    print(player.credit)
+    print(player.balance)
 
 
 def _main():

@@ -1,19 +1,33 @@
 from random import shuffle
 from itertools import product
 
-SUITS = {
-    1: 'ハート',
-    2: 'スペード',
-    3: 'ダイヤ',
-    4: 'クラブ'
-}
 
-RANKS = {
-    1: 'A',
-    11: 'J',
-    12: 'Q',
-    13: 'K'
-}
+# ******************** Card Class ********************
+
+class Card:
+    SUITS = {
+        1: 'ハート',
+        2: 'スペード',
+        3: 'ダイヤ',
+        4: 'クラブ'
+    }
+
+    RANKS = {
+        1: 'A',
+        11: 'J',
+        12: 'Q',
+        13: 'K'
+    }
+
+    def __init__(self, number):
+        self.card = number
+        self.num_suit = number // 100
+        self.num_rank = [min(10, number % 100), (1, 11)][number % 100 == 1]
+        self.display_suit = Card.SUITS[number // 100]
+        self.display_rank = Card.RANKS.get(number % 100, str(number % 100))
+
+
+# ******************** Deck Class ********************
 
 
 class Deck:
@@ -21,11 +35,14 @@ class Deck:
         self.__deck = []
         for suit in range(1, 5):
             for rank in range(1, 14):
-                self.__deck.append(suit * 100 + rank)
+                self.__deck.append(Card(suit * 100 + rank))
         shuffle(self.__deck)
 
     def draw_card(self):
         return self.__deck.pop()
+
+
+# ******************** Participant Class ********************
 
 
 class Participant:
@@ -34,32 +51,13 @@ class Participant:
         self.rank = []
         self.hand = []
 
-    @staticmethod
-    def get_num_suit_rank(card):
-        suit = card // 100
-        rank = min(10, card % 100)
-        return suit, rank
-
-    @staticmethod
-    def get_display_suit_rank(card):
-        suit = card // 100
-        rank = card % 100
-        display_suit = SUITS[suit]
-        display_rank = RANKS.get(rank, str(rank))
-        return display_suit, display_rank
-
     def set_hand(self, card, *, display=True):
-        display_suit, display_rank = self.get_display_suit_rank(card)
         if display:
-            print('{} の引いたカードは {} の {} です'.format(self.name, display_suit, display_rank))
+            print('{} の引いたカードは {} の {} です'.format(self.name, card.display_suit, card.display_rank))
         else:
             print('{} の引いたカードはわかりません'.format(self.name))
 
-        num_suit, num_rank = self.get_num_suit_rank(card)
-        if num_rank == 1:
-            self.rank.append((1, 11))
-        else:
-            self.rank.append(num_rank)
+        self.rank.append(card.num_rank)
         self.hand.append(card)
 
     def get_score(self):
@@ -94,21 +92,19 @@ class Participant:
 # ******************** Player Class ********************
 
 class Player(Participant):
-    def __init__(self, name, credit=0, bet=0):
+    def __init__(self, name, balance=0, bet=0):
         super().__init__(name)
-        self.credit = credit - bet
+        self.balance = balance - bet
         self.bet = bet
         self.done_split = False
 
     def can_split(self):
-        if self.done_split:
+        if self.done_split or len(self.rank) > 2:
             return False
-        _, first_card_rank = self.get_num_suit_rank(self.hand[0])
-        _, second_card_rank = self.get_num_suit_rank(self.hand[1])
-        return first_card_rank == second_card_rank and len(self.hand) == 2 and self.credit >= self.bet
+        return self.rank[0] == self.rank[1] and self.balance >= self.bet
 
     def can_double_down(self):
-        return len(self.hand) == 2 and self.credit >= self.bet
+        return len(self.rank) == 2 and self.balance >= self.bet
 
     def get_player_intention(self):
         while True:
@@ -131,8 +127,7 @@ class Player(Participant):
 class Dealer(Participant):
     def display_hole_card(self):
         card = self.hand[1]
-        display_suit, display_rank = self.get_display_suit_rank(card)
-        print('{} の HOLE CARD は {} の {} です'.format(self.name, display_suit, display_rank))
+        print('{} の HOLE CARD は {} の {} です'.format(self.name, card.display_suit, card.display_rank))
 
     def is_continue(self):
         return self.get_score() < 17

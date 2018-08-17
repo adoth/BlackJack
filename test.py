@@ -1,35 +1,44 @@
 import unittest
 from blackjack import Participant
 from blackjack import Player
+from blackjack import Card
 
 
 participant = Participant('player1')
 player = Player('player1')
 
 
+class TestCard(unittest.TestCase):
+    def test_num_suit(self):
+        self.assertEqual(Card(101).num_suit, 1)
+        self.assertEqual(Card(201).num_suit, 2)
+        self.assertEqual(Card(301).num_suit, 3)
+        self.assertEqual(Card(401).num_suit, 4)
+
+    def test_num_rank(self):
+        self.assertEqual(Card(101).num_rank, (1, 11))
+        self.assertEqual(Card(105).num_rank, 5)
+        self.assertEqual(Card(110).num_rank, 10)
+        self.assertEqual(Card(111).num_rank, 10)
+        self.assertEqual(Card(112).num_rank, 10)
+        self.assertEqual(Card(113).num_rank, 10)
+
+    def test_display_suit(self):
+        self.assertEqual(Card(101).display_suit, "ハート")
+        self.assertEqual(Card(201).display_suit, "スペード")
+        self.assertEqual(Card(301).display_suit, "ダイヤ")
+        self.assertEqual(Card(401).display_suit, "クラブ")
+
+    def test_display_rank(self):
+        self.assertEqual(Card(101).display_rank, "A")
+        self.assertEqual(Card(105).display_rank, "5")
+        self.assertEqual(Card(110).display_rank, "10")
+        self.assertEqual(Card(111).display_rank, "J")
+        self.assertEqual(Card(112).display_rank, "Q")
+        self.assertEqual(Card(113).display_rank, "K")
+
+
 class TestParticipant(unittest.TestCase):
-    def test_num_suit_rank(self):
-        self.assertEqual(participant.get_num_suit_rank(101),
-                         (1, 1))
-        self.assertEqual(participant.get_num_suit_rank(310),
-                         (3, 10))
-        self.assertEqual(participant.get_num_suit_rank(411),
-                         (4, 10))
-        self.assertEqual(participant.get_num_suit_rank(312),
-                         (3, 10))
-
-    def test_get_display_suit_rank(self):
-        self.assertEqual(participant.get_display_suit_rank(101),
-                         ('ハート', 'A'))
-        self.assertEqual(participant.get_display_suit_rank(205),
-                         ('スペード', '5'))
-        self.assertEqual(participant.get_display_suit_rank(312),
-                         ('ダイヤ', 'Q'))
-        self.assertEqual(participant.get_display_suit_rank(411),
-                         ('クラブ', 'J'))
-        self.assertEqual(participant.get_display_suit_rank(113),
-                         ('ハート', 'K'))
-
     def test_include_ace_and_just_twenty_one(self):
         participant.rank = [(1, 11), 10]
         actual = participant.get_score()
@@ -87,32 +96,32 @@ class TestParticipant(unittest.TestCase):
 
 class TestPlayer(unittest.TestCase):
     def test_can_split_true1(self):
-        player.hand = [101, 201]
+        player.rank = [1, 1]
         self.assertTrue(player.can_split())
 
     def test_can_split_true2(self):
-        player.hand = [412, 410]
+        player.rank = [10, 10]
         self.assertTrue(player.can_split())
 
     def test_can_split_false(self):
-        player.hand = [409, 109, 209]
+        player.rank = [9, 9, 9]
         self.assertFalse(player.can_split())
 
     def test_can_double_down_true1(self):
-        player.hand = [101, 102]
-        player.credit = 1000
+        player.rank = [1, 2]
+        player.balance = 1000
         player.bet = 100
         self.assertTrue(player.can_double_down())
 
     def test_can_double_down_false1(self):
-        player.hand = [101, 102, 103]
-        player.credit = 1000
+        player.rank = [1, 2, 3]
+        player.balance = 1000
         player.bet = 100
         self.assertFalse(player.can_double_down())
 
     def test_can_double_down_false2(self):
-        player.hand = [101, 102]
-        player.credit = 300
+        player.rank = [1, 2]
+        player.balance = 300
         player.bet = 700
         self.assertFalse(player.can_double_down())
 
