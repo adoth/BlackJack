@@ -7,6 +7,9 @@ class Player:
         self.hand = Hand()
         self.done_split = False
 
+    def set_hand(self, card):
+        self.hand.set_hand(card)
+
     def can_split(self):
         if self.done_split or len(self.hand.hand) > 2:
             return False
@@ -16,19 +19,21 @@ class Player:
         return len(self.hand.hand) == 2
 
     def input_player_intention(self):
+        display_words = {(True, True): 'HIT or STAND or Double Down or Split?\n>',
+                         (False, True): 'HIT or STAND or Double Down?\n>',
+                         (False, False): 'HIT or STAND?\n>'}
+
+        correct_response = {(True, True): ['hit', 'stand', 'double down', 'doubledown', 'double', 'split'],
+                            (False, True): ['hit', 'stand', 'double down', 'doubledown', 'double'],
+                            (False, False): ['hit', 'stand']}
+
         while True:
-            if self.can_split() and self.can_double_down():
-                player_intention = input('HIT or STAND or Double Down or Split?\n>').lower()
-                if player_intention in ['hit', 'stand', 'double down', 'doubledown', 'double', 'split']:
-                    return player_intention
-            elif self.can_double_down():
-                player_intention = input('HIT or STAND or Double Down?\n>').lower()
-                if player_intention in ['hit', 'stand', 'double down', 'doubledown', 'double']:
-                    return player_intention
-            else:
-                player_intention = input('HIT or STAND?\n>').lower()
-                if player_intention in ['hit', 'stand']:
-                    return player_intention
+            can_split = self.can_split()
+            can_double_down = self.can_double_down()
+            player_intention = input(display_words[(can_split, can_double_down)]).lower()
+
+            if player_intention in correct_response[(can_split, can_double_down)]:
+                return player_intention
 
     def display_score(self):
         print("{} のスコアは {}".format(self.name, self.hand.calculate_total_score()))
