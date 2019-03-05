@@ -1,6 +1,6 @@
-from Blackjack.scr.deck import Deck
-from Blackjack.scr.player import Player
-from Blackjack.scr.dealer import Dealer
+from Blackjack.src.deck import Deck
+from Blackjack.src.player import Player
+from Blackjack.src.dealer import Dealer
 
 
 class Game:

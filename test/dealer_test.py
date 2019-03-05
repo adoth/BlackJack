@@ -1,5 +1,5 @@
-from Blackjack.scr.dealer import Dealer
-from Blackjack.scr.card import Card
+from Blackjack.src.dealer import Dealer
+from Blackjack.src.card import Card
 import unittest
 
 

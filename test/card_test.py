@@ -1,4 +1,4 @@
-from Blackjack.scr.card import Card
+from Blackjack.src.card import Card
 import unittest
 
 

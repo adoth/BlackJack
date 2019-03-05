@@ -1,4 +1,4 @@
-from Blackjack.scr.deck import Deck
+from Blackjack.src.deck import Deck
 import unittest
 
 

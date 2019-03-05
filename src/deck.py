@@ -1,6 +1,6 @@
 from random import shuffle
 
-from Blackjack.scr.card import Card
+from Blackjack.src.card import Card
 
 
 class Deck:

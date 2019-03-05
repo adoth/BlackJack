@@ -1,4 +1,4 @@
-from Blackjack.scr.hand import Hand
+from Blackjack.src.hand import Hand
 
 
 class Dealer:

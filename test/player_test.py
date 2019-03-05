@@ -1,5 +1,5 @@
-from Blackjack.scr.player import Player
-from Blackjack.scr.card import Card
+from Blackjack.src.player import Player
+from Blackjack.src.card import Card
 import unittest
 
 
